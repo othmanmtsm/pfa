@@ -26,6 +26,9 @@ session_start();
                 <a href="index.php" class="list-group-item-action text-center">
                     <box-icon name='home-alt'></box-icon>
                 </a>
+                <a href="commandes.php" class="list-group-item-action text-center">
+                     <box-icon name='shopping-bag'></box-icon>
+                </a>
                 <?php
                     $page = basename($_SERVER['PHP_SELF']);
                     if ($page != "checkout.php") {

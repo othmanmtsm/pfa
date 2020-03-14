@@ -100,4 +100,3 @@ document.getElementById('lo').addEventListener('click',()=>{
         theme: 'dark'
     });
 })
-

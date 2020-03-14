@@ -98,7 +98,7 @@ box-icon:hover{
   border: 1px solid rgba(204, 204, 204, .6);
   border-radius: 4px;
   height: 290px;
-  margin-left: 25px;
+  margin-left: 60px;
 }
 
 .product-cl{
@@ -213,14 +213,14 @@ box-icon:hover{
   font-weight: lighter !important;
 }
 
-#loginf form input,button{
+input,button{
   margin-top: 30px;
 }
 
-#loginf form input{
+input{
   border: none !important;
   border-bottom: 2px solid #7C4DFF !important;
-  
+  margin-top: 5px;
 }
 .transition-fade {
   transition: 0.4s;
