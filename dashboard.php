@@ -141,7 +141,7 @@ if (isset($_POST['submit'])) {
                                 <td>$data[1]</td>
                                 <td><img width='70' src='$data[2]' /></td>
                                 <td>$data[3]</td>
-                                <td>$data[4]</td>
+                                <td>$data[5]</td>
                                 <td><a href='./managearticles.php?id=$data[0]&op=delete'><box-icon name='x-square' type='solid' ></box-icon></a><box-icon name='pencil' type='solid' data-toggle='modal' data-target='#exampleModal$comp' ></box-icon></td>
                             </tr>
                             <div class='modal fade' id='exampleModal$comp' tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel$comp' aria-hidden='true'>
