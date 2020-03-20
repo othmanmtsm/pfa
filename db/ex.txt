@@ -1,0 +1,2 @@
+Admin : Gerer les articles , Valider ou pas les inscriptions, valider ou pas les cmd
+0Client : S'inscrire, Gestion commande, Passer des cmd
