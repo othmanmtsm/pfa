@@ -16,7 +16,7 @@ async function getData() {
             data: {
                 labels: months,
                 datasets: [{
-                    label: 'Nombre des Commandes par mois',
+                    label: 'Nombre de Commandes par mois',
                     data: numComs,
                     backgroundColor: 'rgba(124, 77, 255, 0.2)',
                     borderColor: 'rgba(124, 77, 255)',
