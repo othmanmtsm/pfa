@@ -1,5 +1,6 @@
 <?php include_once('header.php') ?>
 <?php
+require 'db.php';
 if (!isset($_SESSION['admin'])) {
     header('location:login.php');
 }
@@ -21,10 +22,9 @@ if (isset($_POST['submit'])) {
                 $nFileName = uniqid('', true) . "." . $fileAcExt;
                 $fileDestination = 'images/' . $nFileName;
                 move_uploaded_file($fileTmpName, $fileDestination);
-                $data = array(uniqid(), $_POST['artname'], $fileDestination, $_POST['price'], $_POST['desc'], $_POST['qte']);
-                $file = fopen('articles.csv', 'a+');
-                fputcsv($file, $data);
-                fclose($file);
+                $sql = 'insert into articles(name,img,price,descr,qte) values(:n,:im,:prc,:desc,:qt)';
+                $statement = $connection->prepare($sql);
+                $statement->execute([':n'=>$_POST['artname'],':im'=>$fileDestination,':prc'=>$_POST['price'],':desc'=>$_POST['desc'],':qt'=>$_POST['qte']]);
             } else {
                 echo "file too large";
             }
@@ -60,25 +60,19 @@ if (isset($_POST['submit'])) {
                         </thead>
                         <tbody>
                             <?php
-                            $comp = 1;
-                            if (($file = fopen('users.csv', 'r')) != false) {
-                                while ($data = fgetcsv($file, 1000, ',')) {
-                                    if ($data[4] == 0) {
-                                        echo "
-                                <tr>
-                                    <th scope='row'>$comp</th>
-                                    <td>$data[1]</td>
-                                    <td>$data[2]</td>
-                                    <td><a href='./manageuser.php?id=$data[0]&op=accept'><box-icon type='solid' name='check-square'></box-icon></a></td>
-                                    <td><a href='./manageuser.php?id=$data[0]&op=deny'><box-icon name='x-square' type='solid' ></box-icon></a></td>
-                                </tr>
-                            ";
-                                        $comp++;
-                                    }
-                                }
-                                fclose($file);
+                            $stmt = $connection->query("SELECT * FROM users WHERE isVer=0");
+                            $stmt->execute(); 
+                            while ($row = $stmt->fetch()) {
+                                echo "
+                                    <tr>
+                                        <th scope='row'>".$row['id']."</th>
+                                        <td>".$row['username']."</td>
+                                        <td>".$row['mail']."</td>
+                                        <td><a href='./manageuser.php?id=".$row['id']."&op=accept'><box-icon type='solid' name='check-square'></box-icon></a></td>
+                                        <td><a href='./manageuser.php?id=".$row['id']."&op=deny'><box-icon name='x-square' type='solid' ></box-icon></a></td>
+                                    </tr>
+                                ";
                             }
-
                             ?>
                         </tbody>
                     </table>
@@ -132,34 +126,35 @@ if (isset($_POST['submit'])) {
                         </thead>
                         <tbody>
                             <?php
-                            $comp = 1;
-                            if (($file = fopen('articles.csv', 'r')) != false) {
-                                while ($data = fgetcsv($file, 1000, ',')) {
-                                    echo "
+                            
+                            $stmt = $connection->query("SELECT * FROM articles");
+                            $stmt->execute(); 
+                            while ($row = $stmt->fetch()) {
+                                echo "
                             <tr>
-                                <th scope='row'>$comp</th>
-                                <td>$data[1]</td>
-                                <td><img width='70' src='$data[2]' /></td>
-                                <td>$data[3]</td>
-                                <td>$data[5]</td>
-                                <td><a href='./managearticles.php?id=$data[0]&op=delete'><box-icon name='x-square' type='solid' ></box-icon></a><box-icon name='pencil' type='solid' data-toggle='modal' data-target='#exampleModal$comp' ></box-icon></td>
+                                <th scope='row'>".$row['id']."</th>
+                                <td>".$row['name']."</td>
+                                <td><img width='70' src='".$row['img']."' /></td>
+                                <td>".$row['price']."</td>
+                                <td>".$row['qte']."</td>
+                                <td><a href='./managearticles.php?id=".$row['id']."&op=delete'><box-icon name='x-square' type='solid' ></box-icon></a><box-icon name='pencil' type='solid' data-toggle='modal' data-target='#exampleModal".$row['id']."' ></box-icon></td>
                             </tr>
-                            <div class='modal fade' id='exampleModal$comp' tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel$comp' aria-hidden='true'>
+                            <div class='modal fade' id='exampleModal".$row['id']."' tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel".$row['id']."' aria-hidden='true'>
                             <div class='modal-dialog' role='document'>
                                 <div class='modal-content'>
                                 <div class='modal-header'>
-                                    <h5 class='modal-title' id='exampleModalLabel$comp'>Modal title</h5>
+                                    <h5 class='modal-title' id='exampleModalLabel".$row['id']."'>Modal title</h5>
                                     <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
                                     <span aria-hidden='true'>&times;</span>
                                     </button>
                                 </div> 
                                     <div class='modal-body'>
-                                        <input type='hidden' value='$data[0]' name='aid'>
-                                        <input value='$data[1]' type='text' class='form-control' name='artname' placeholder='Article name' required/>
+                                        <input type='hidden' value='".$row['id']."' name='aid'>
+                                        <input value='".$row['name']."' type='text' class='form-control' name='artname' placeholder='Article name' required/>
                                         
-                                        <input value='$data[3]' type='number' name='price' class='form-control' placeholder='Price'>
-                                        <input value='$data[5]' type='number' name='qte' class='form-control' placeholder='Quantity'>
-                                        <textarea name='desc'cols='30' rows='10' placeholder='Description' class='form-control'>$data[4]</textarea>
+                                        <input value='".$row['price']."' type='number' name='price' class='form-control' placeholder='Price'>
+                                        <input value='".$row['qte']."' type='number' name='qte' class='form-control' placeholder='Quantity'>
+                                        <textarea name='desc'cols='30' rows='10' placeholder='Description' class='form-control'>".$row['descr']."</textarea>
                                     </div>
                                     <div class='modal-footer'>
                                         <button type='button' class='btn btn-secondary' data-dismiss='modal'>Close</button>
@@ -168,10 +163,7 @@ if (isset($_POST['submit'])) {
                                 </div>
                             </div>
                             </div>
-                            ";
-                                    $comp++;
-                                }
-                                fclose($file);
+                            ";   
                             }
 
                             ?>
@@ -190,34 +182,40 @@ if (isset($_POST['submit'])) {
                         </thead>
                         <tbody>
                             <?php
-                            if (($file = fopen('commandes.csv', 'r')) != false) {
-                                $ind = 1;
-                                while ($data = fgetcsv($file, 1000, ',')) {
-                                    $cid = $data[0];
-                                    $date = $data[2];
-                                    $verif = $data[3] == 0 ? "Inverified" : "Verified";
-                                    $details = json_decode($data[1]);
+                            $stmt = $connection->query("SELECT * FROM commandes WHERE isVer=0");
+                            $stmt->execute(); 
+                            while ($row = $stmt->fetch()) {
+                                    $cid = $row['id'];
+                                    $date = $row['dat'];
+                                    $verif = $row['isVer'] == 0 ? "Unverified" : "Verified";
+                                    $details = json_decode($row['detail']);
                                     echo "
-                            <tr>
-                            <td>$cid</td>
-                            <td>$date</td>
-                            <td>$verif</td>
-                            <td>
-                                <a href='managecomandes.php?id=$cid&op=accept'><box-icon type='solid' name='check-square'></box-icon></a>
-                                <a href='managecomandes.php?id=$cid&op=deny'><box-icon type='solid' name='x-square'></box-icon></a>
-                            </td>
-                        </tr>";
-                                    $ind++;
-                                }
+                                        <tr>
+                                        <td>$cid</td>
+                                        <td>$date</td>
+                                        <td>$verif</td>
+                                        <td>
+                                            <a href='managecomandes.php?id=$cid&op=accept'><box-icon type='solid' name='check-square'></box-icon></a>
+                                            <a href='managecomandes.php?id=$cid&op=deny'><box-icon type='solid' name='x-square'></box-icon></a>
+                                        </td>
+                                    </tr>";
                             }
                             ?>
                         </tbody>
                     </table>
+                    <canvas id="myChart"></canvas>
+                    <div id="chartload" class="col-4 mx-auto text-center">
+                        <img src="./images/6.gif">
+                        <p>loading chart...</p>
+                    </div>
+                    
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+<script src="./chartlogic.js"></script>
 <script>
     document.querySelectorAll('.modf').forEach(m => {
         m.addEventListener('click', () => {

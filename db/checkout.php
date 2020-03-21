@@ -1,13 +1,13 @@
 <?php include_once('header.php') ?>
 <?php
+require 'db.php';
 if (!isset($_SESSION['user'])) {
     header('location:login.php');
 }
 if (isset($_GET['query'])) {
-    $file = fopen('commandes.csv', 'a+');
-    $data = array(uniqid('', true), $_GET['query'], date("D M d, Y G:i"), 0, $_SESSION['user']);
-    fputcsv($file, $data);
-    fclose($file);
+    $sql = "INSERT INTO commandes(detail,dat,usr) VALUES(:det,:dt,:usr)";
+    $statement = $connection->prepare($sql);
+    $statement->execute([':det'=>$_GET['query'],':dt'=>date("Y-m-d H:i:s"),':usr'=>$_SESSION['user']]);
     header('location:commandes.php');
 }
 ?>

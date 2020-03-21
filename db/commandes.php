@@ -22,52 +22,49 @@ if (!isset($_SESSION['user'])) {
                 </thead>
                 <tbody>
                     <?php
-                    if (($file = fopen('commandes.csv', 'r')) != false) {
-                        $ind = 1;
-                        while ($data = fgetcsv($file, 1000, ',')) {
-                            if ($data[4] == $_SESSION['user']) {
-
-
-                                $cid = $data[0];
-                                $date = $data[2];
-                                $verif = $data[3] == 0 ? "Unverified" : "Verified";
-                                $details = json_decode($data[1]);
-                                echo "
+                    require 'db.php';
+                    $stmt = $connection->query("SELECT * FROM commandes");
+                    $stmt->execute();
+                    while ($row = $stmt->fetch()) {
+                        $cid = $row['id'];
+                        $date = $row['dat'];
+                        $verif = $row['isVer'] == 0 ? "Unverified" : "Verified";
+                        $details = json_decode($row['detail']);
+                        $usr = $row['usr'];
+                        if ($usr == $_SESSION['user']) {
+                            echo "
                             <tr>
                             <td>$cid</td>
                             <td>$date</td>
                             <td>$verif</td>
                             <td>
-                                <box-icon data-toggle='modal' data-target='#exampleModal${ind}' type='solid' name='detail'></box-icon>
+                                <box-icon data-toggle='modal' data-target='#exampleModal$cid' type='solid' name='detail'></box-icon>
                             </td>
                         </tr>
                         
                         
-                        <div class='modal fade' id='exampleModal${ind}' tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel${ind}' aria-hidden='true'>
+                        <div class='modal fade' id='exampleModal$cid' tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel$cid' aria-hidden='true'>
                             <div class='modal-dialog' role='document'>
                                 <div class='modal-content'>
                                     <div class='modal-header'>
-                                        <h5 class='modal-title' id='exampleModalLabel${ind}'>Order Details</h5>
+                                        <h5 class='modal-title' id='exampleModalLabel$cid'>Order Details</h5>
                                         <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
                                             <span aria-hidden='true'>&times;</span>
                                         </button>
                                     </div>
                                     <div class='modal-body'>
                                     <ul class='list-group'>";
-                                foreach ($details as $d) {
-                                    echo "
+                            foreach ($details as $d) {
+                                echo "
                                                     <li class='list-group-item d-flex justify-content-between align-items-center'>
                                                     $d->name
                                                     <span class='badge badge-primary badge-pill'>$d->qte</span>
                                                      </li>
                                                 ";
-                                    // echo '<pre>';
-                                    // var_dump($d);
-                                    // echo '</pre>';
-                                }
+                            }
 
 
-                                echo "
+                            echo "
                                         </ul>
                                     </div>
                                 </div>
@@ -75,8 +72,6 @@ if (!isset($_SESSION['user'])) {
                         </div>
 
                             ";
-                                $ind++;
-                            }
                         }
                     }
                     ?>

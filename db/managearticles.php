@@ -1,42 +1,14 @@
 <?php
+    require 'db.php';
     if (isset($_GET['aid'])) {
-        $data = [];
-        if (($file = fopen('articles.csv','a+'))!=false) {
-            while ($line = fgetcsv($file,1000,',')) {
-                $data[] = $line;
-                foreach ($data as $item) {
-                    if ($item[0]==$_GET['aid']) {
-                        $data[array_search($item,$data)][1] = $_GET['artname'];
-                        $data[array_search($item,$data)][3] = $_GET['price'];
-                        $data[array_search($item,$data)][4] = $_GET['desc'];
-                        $data[array_search($item,$data)][5] = $_GET['qte'];
-                    }
-                }
-            }
-        }
-        if (($file1 = fopen('articles.csv','w'))!=false) {
-            foreach ($data as $item) {
-                fputcsv($file1,$item);
-            }
-        }
+        $sql = "UPDATE articles SET name=:nm,price=:prc,descr=:des,qte=:qt WHERE id=:id";
+        $statement = $connection->prepare($sql);
+        $statement->execute([':nm'=>$_GET['artname'],':prc'=>$_GET['price'],':des'=>$_GET['desc'],':qt'=>$_GET['qte'],':id'=>$_GET['aid']]);
         header('location: dashboard.php');
     }
     if (isset($_GET['op']) && $_GET['op']=='delete') {
-        $data = [];
-        if (($file = fopen('articles.csv','a+'))!=false) {
-            while ($line = fgetcsv($file,1000,',')) {
-                $data[] = $line;
-            }
-        }
-        foreach ($data as $item) {
-            if ($item[0]==$_GET['id']) {
-                unset($data[array_search($item,$data)]);
-            }
-        }
-        if (($file1 = fopen('articles.csv','w'))!=false) {
-            foreach ($data as $item) {
-                fputcsv($file1,$item);
-            }
-        }
+        $sql = "DELETE FROM articles WHERE id=:id";
+        $statement = $connection->prepare($sql);
+        $statement->execute([':id'=>$_GET['id']]);
         header('location: dashboard.php');
     }

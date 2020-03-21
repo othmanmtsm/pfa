@@ -1,21 +1,29 @@
 <?php include_once('header.php') ?>
 <?php
+require 'db.php';
 if (isset($_SESSION['user'])) {
     header('location: index.php');
 }
 if (isset($_POST['user'])) {
-    if (($file = fopen('users.csv', 'r')) != false) {
-        while ($line = fgetcsv($file, 1000, ',')) {
-            if ($_POST['user'] == $line[1] && $_POST['pass'] == $line[3]) {
-                if ($line[4] == 1) {
-                    if ($line[5] == 1) {
-                        $_SESSION['admin'] = $line[5];
-                    }
-                    $_SESSION['user'] = $line[0];
-                    header('location: index.php');
-                }
+    $uname = $_POST['user'];
+    $pass = $_POST['pass'];
+
+    $stmt = $connection->prepare("SELECT * FROM users WHERE username=:un");
+
+    $stmt->execute([':un' => $uname]); 
+    $user = $stmt->fetch();
+    if (isset($user) and password_verify($_POST['pass'],$user['pass'])) {
+        if ($user['isVer']==1) {
+            if ($user['isAd']==1) {
+                $_SESSION['admin'] = $user['isAd'];
             }
+            $_SESSION['user'] = $user['id'];
+            header('location: index.php');
+        }else {
+            echo 'not verified';
         }
+    }else {
+        echo 'error';
     }
 }
 ?>

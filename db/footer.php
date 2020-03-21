@@ -2,7 +2,7 @@
 </div>
 </div>
 <footer>
-    <div class="text-center mt-5 mb-2 fixed-bottom">
+    <div class="text-center mt-5 mb-2">
         Made with ❤️ by Motassim Othman - Malainine Ahmed
     </div>
 </footer>

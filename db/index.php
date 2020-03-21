@@ -19,16 +19,19 @@ if (!isset($_SESSION['user'])) {
       <hr>
     </div>
     <?php
-    if (($file = fopen('articles.csv', 'r')) != false) {
-      while ($data = fgetcsv($file, 1000, ',')) {
-        echo "
+    require 'db.php';
+
+    $stmt = $connection->query("SELECT * FROM articles");
+    $stmt->execute(); 
+    while ($row = $stmt->fetch()) {
+      echo "
               <div class='col-11 col-md-3 product mt-4 card text-center'>
-              <center><img class='card-img-top img-fluid mt-2' src='$data[2]' alt='Card image cap'></center>
+              <center><img class='card-img-top img-fluid mt-2' src='".$row['img']."' alt='Card image cap'></center>
               <div class='card-body'>
                 <div class='infos'>
-                  <h5 class='card-title'>$data[1]</h5>
-                  <p style='margin-bottom: 0; color:#969696; font-weight:200;'>$data[4]</p>
-                  <p class='card-text'>$data[3] DH</p>
+                  <h5 class='card-title'>".$row['name']."</h5>
+                  <p style='margin-bottom: 0; color:#969696; font-weight:200;'>".$row['descr']."</p>
+                  <p class='card-text'>".$row['price']." DH</p>
                 </div>
                 <div class='addcart'>
                   <box-icon name='cart-alt' ></box-icon>
@@ -36,7 +39,6 @@ if (!isset($_SESSION['user'])) {
               </div>
             </div>
           ";
-      }
     }
     ?>
   </div>

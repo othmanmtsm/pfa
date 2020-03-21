@@ -1,17 +1,20 @@
 <!-- TODO : Form validation -->
 <?php include_once('header.php')?>
 <?php
+    require 'db.php';
     if (isset($_POST['user'])){
-        $data = array(uniqid(),$_POST['user'],$_POST['mail'],$_POST['pass'],0,0);
-        $file = fopen('users.csv','a+');
-        fputcsv($file,$data);
-        fclose($file);
+        $uname = $_POST['user'];
+        $mail = $_POST['mail'];
+        $pass = password_hash($_POST['pass'], PASSWORD_DEFAULT);
+        $sql = 'insert into users(username,mail,pass) values(:un,:ml,:ps)';
+        $statement = $connection->prepare($sql);
+        $statement->execute([':un'=>$uname, ':ml'=>$mail, ':ps'=>$pass]);
     }
 ?>
 <div class="container">
     <div class="row">
         <div style="height: 500px !important;" class="col-6 mx-auto text-center" id="loginf">
-        <form class="form-signin" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+        <form class="form-signin" method="POST">
             <h3 class="mt-5">Register</h3>
             <hr/>
             <input type="text" name="user" class="form-control" placeholder="Username" required autofocus>
